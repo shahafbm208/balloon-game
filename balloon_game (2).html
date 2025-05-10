@@ -1,0 +1,136 @@
+
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8">
+  <title>פיצוץ בלונים דיגיטלי</title>
+  <style>
+    body {
+      background: linear-gradient(to right, #fceabb, #f8b500);
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+      direction: rtl;
+    }
+    .question {
+      font-size: 24px;
+      margin-top: 30px;
+    }
+    .balloons {
+      display: flex;
+      justify-content: center;
+      margin: 30px;
+      gap: 20px;
+    }
+    .balloon {
+      width: 100px;
+      height: 130px;
+      border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      position: relative;
+    }
+    #feedback {
+      font-size: 28px;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+    #score {
+      margin-top: 20px;
+      font-size: 22px;
+    }
+  </style>
+</head>
+<body>
+  <div class="question" id="question"></div>
+  <div class="balloons" id="balloons"></div>
+  <div id="feedback"></div>
+  <div id="score">ניקוד: 0</div>
+
+  <script>
+    const questions = [
+      { q: "3 + 4", a: 7 },
+      { q: "10 - 2", a: 8 },
+      { q: "2 * 3", a: 6 },
+      { q: "12 / 4", a: 3 },
+      { q: "5 + 6", a: 11 },
+      { q: "7 - 3", a: 4 },
+      { q: "4 * 2", a: 8 },
+      { q: "9 / 3", a: 3 },
+      { q: "6 + 1", a: 7 },
+      { q: "8 - 5", a: 3 },
+    ];
+
+    let current = 0;
+    let score = 0;
+    const balloonColors = ['#ff6666', '#66ccff', '#99cc33', '#ffcc00'];
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    function generateAnswers(correct) {
+      const answers = new Set([correct]);
+      while (answers.size < 4) {
+        const n = correct + Math.floor(Math.random() * 10 - 5);
+        if (n !== correct && n >= 0) answers.add(n);
+      }
+      return Array.from(answers);
+    }
+
+    function showQuestion() {
+      document.getElementById('feedback').textContent = '';
+      const q = questions[current];
+      document.getElementById('question').textContent = `שאלה ${current + 1}: כמה זה ${q.q}?`;
+
+      const answers = generateAnswers(q.a);
+      shuffle(answers);
+
+      const balloons = document.getElementById('balloons');
+      balloons.innerHTML = '';
+
+      answers.forEach((ans, idx) => {
+        const balloon = document.createElement('div');
+        balloon.className = 'balloon';
+        balloon.textContent = ans;
+        balloon.style.backgroundColor = balloonColors[idx % balloonColors.length];
+        balloon.onclick = () => checkAnswer(ans);
+        balloons.appendChild(balloon);
+      });
+    }
+
+    function checkAnswer(answer) {
+      const correct = questions[current].a;
+      const feedback = document.getElementById('feedback');
+      if (answer === correct) {
+        score += 10;
+        feedback.textContent = '✓ תשובה נכונה!';
+        feedback.style.color = 'green';
+      } else {
+        feedback.textContent = '✗ תשובה שגויה';
+        feedback.style.color = 'red';
+      }
+      document.getElementById('score').textContent = `ניקוד: ${score}`;
+      setTimeout(() => {
+        current++;
+        if (current < questions.length) {
+          showQuestion();
+        } else {
+          document.getElementById('question').textContent = 'סיימת את המשחק!';
+          document.getElementById('balloons').innerHTML = '';
+          feedback.textContent = `הניקוד הסופי שלך הוא ${score} מתוך ${questions.length * 10}`;
+        }
+      }, 1000);
+    }
+
+    showQuestion();
+  </script>
+</body>
+</html>
